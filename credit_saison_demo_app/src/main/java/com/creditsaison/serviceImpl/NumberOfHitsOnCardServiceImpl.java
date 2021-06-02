@@ -4,13 +4,18 @@ import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import com.creditsaison.dto.BaseResponseDto;
+import com.creditsaison.dto.CardDetailsDto;
 import com.creditsaison.dto.NumberOfHitsOnCardResponseDto;
 import com.creditsaison.model.NumberOfHitsOnCardDo;
 import com.creditsaison.repository.NumberOfHitsOnCardRepo;
@@ -24,7 +29,10 @@ public class NumberOfHitsOnCardServiceImpl implements NumberOfHitsOnCardService 
 	@Autowired
 	private NumberOfHitsOnCardRepo repo;
 
-	@Override 
+	@Autowired
+	private RestTemplate restTemplate;
+
+	@Override
 	public ResponseEntity<?> saveOrUpdate(String cardNumber) {
 		try {
 			if (!HelperClass.checkString(cardNumber)) {
@@ -68,6 +76,46 @@ public class NumberOfHitsOnCardServiceImpl implements NumberOfHitsOnCardService 
 			} else {
 				return new ResponseEntity<>(
 						AppErrorMsgConstants.INVALID_INPUT + "Please provide start and limit value.",
+						HttpStatus.BAD_REQUEST);
+			}
+		} catch (Exception e) {
+			return new ResponseEntity<>(AppErrorMsgConstants.EXCEPTION_POST_MSG + e.getMessage(),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@Override
+	public ResponseEntity<?> verifyCardFromBinList(String cardNum) {
+		try {
+			if (!HelperClass.checkString(cardNum)) {
+				ResponseEntity<String> responseFromClient = restTemplate.exchange(
+						"https://lookup.binlist.net/" + cardNum, HttpMethod.GET, HelperClass.attachHeadersToRequest(),
+						String.class);
+
+				if (responseFromClient.getStatusCode().value() == HttpStatus.OK.value()) {
+					ResponseEntity<?> responseFromUpdatingHitOnCard = saveOrUpdate(cardNum);
+					if (responseFromUpdatingHitOnCard.getStatusCode().value() == HttpStatus.CREATED.value()) {
+						JSONObject jsonObject;
+						jsonObject = new JSONObject(responseFromClient.getBody());
+
+						String bankName = null;
+						if (jsonObject.has("bank") && jsonObject.getJSONObject("bank").has("name")) {
+							bankName = jsonObject.getJSONObject("bank").getString("name");
+						}
+
+						return new ResponseEntity<>(
+								new BaseResponseDto(true, new CardDetailsDto(jsonObject.getString("scheme"),
+										jsonObject.getString("type"), bankName)),
+								HttpStatus.OK);
+
+					} else {
+						return responseFromUpdatingHitOnCard;
+					}
+				} else {
+					return new ResponseEntity<>(responseFromClient.getBody(), responseFromClient.getStatusCode());
+				}
+			} else {
+				return new ResponseEntity<>(AppErrorMsgConstants.INVALID_INPUT + "Please provide valid input.",
 						HttpStatus.BAD_REQUEST);
 			}
 		} catch (Exception e) {
