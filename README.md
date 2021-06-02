@@ -16,6 +16,6 @@ URL to clone : https://github.com/yashasvisagar29/credit-saison.git
 4. Spring Boot Plugin support or use STS IDE to run Spring Boot Project.
 
 **Steps**
-Step 1 : Clone this project using above URL.
-Step 2 : Import Project to your current directory.
-Step 3 : Right click on the project (credit_saison_demo_app) and then click on Run As -> Run as Spring Boot App.
+1. Clone this project using above URL.
+2. Import Project to your current directory.
+3. Right click on the project (credit_saison_demo_app) and then click on Run As -> Run as Spring Boot App.
