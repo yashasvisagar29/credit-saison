@@ -1,10 +1,10 @@
 # credit-saison
-It is a spring boot project.
+It is a Spring Boot Project.
 
 **Technologies Used** 
-Database used : H2(In memory)
-Front End : HTML,CSS, Javascript, JQuery
-Back End : Java
+1. Database used : H2(In memory)
+2. Front End : HTML,CSS, Javascript, JQuery
+3. Back End : Java
 
 **Steps to Run the Project**
 
@@ -19,3 +19,4 @@ URL to clone : https://github.com/yashasvisagar29/credit-saison.git
 1. Clone this project using above URL.
 2. Import Project to your current directory.
 3. Right click on the project (credit_saison_demo_app) and then click on Run As -> Run as Spring Boot App.
+4. Go to http://localhost:8080/ in any browser(Chrome Recommended).
