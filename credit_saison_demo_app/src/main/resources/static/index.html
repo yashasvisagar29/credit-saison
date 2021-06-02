@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Credit Suison App</title>
+<!-- INCLUDING JQUERY-->
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<link rel="stylesheet" href="mystyle.css">
+
+<script>
+	$(document).ready(function() {
+		$.ajax({url : "http://localhost:8080/card-scheme/stats"})
+			.then(function(data) {
+				console.log(data);
+				$('#size').append(data.size);
+				var jsonObj = data.payload;
+				$('#stats').empty();
+				$('#stats').append("<thead><tr><th>Card Number</th><th>Hits on Card</th></tr></thead>");
+				for ( var key in jsonObj) {
+					$('#stats').append("<tbody><tr><td>" + key+ "</td><td>"+ jsonObj[key]+ "</td></tr></tbody>");
+				}
+			});
+		});
+	$(document).ready(function() {
+		$("#refreshHits").click(function (e) {
+			$.ajax({url : "http://localhost:8080/card-scheme/stats"})
+				.then(function(data) {
+					console.log(data);
+					$('#size').append(data.size);
+					var jsonObj = data.payload;
+					$('#stats').empty();
+					$('#stats').append("<thead><tr><th>Card Number</th><th>Hits on Card</th></tr></thead>");
+					for ( var key in jsonObj) {
+						$('#stats').append("<tbody><tr><td>" + key+ "</td><td>"+ jsonObj[key]+ "</td></tr></tbody>");
+					}
+				});
+			});
+		});
+	$(document).ready(function() {
+		$("#verifyCard").click(function (e) {
+			$.ajax({url : "http://localhost:8080/card-scheme/verify/"+$("#cardNumber").val()})
+				.then(function(data) {
+					console.log(data.payload);
+					var jsonObj = data.payload;
+					alert(JSON.stringify(jsonObj));
+								
+				});
+			});
+		});
+	
+</script>
+</head>
+
+<body>
+	<h1>
+		Card Number: <input type="text" id="cardNumber" value="45717360">
+		<button id="verifyCard">Verify</button>
+		<button id="refreshHits">Refresh Hits</button>
+	</h1>
+	<br>
+	<table id="stats" >	</table>
+	<br>
+	
+	
+</body>
+</html>
